@@ -1,0 +1,23 @@
+# Raw captures (HEIC/MOV with GPS EXIF) and any other user raw material: local only
+temp-*
+
+# Pipeline scratch: staged photos, Object Capture output, intermediate meshes
+work/
+
+# Compiled Object Capture CLI (build from objcap.swift)
+.omp/skills/photogrammetry-model/scripts/objcap
+
+# Viewer build output and generated model copies (source of truth is models/)
+viewer/node_modules/
+viewer/dist/
+viewer/public/models/
+*.tsbuildinfo
+
+# OS / editor / tooling
+.DS_Store
+__pycache__/
+*.pyc
+*.blend1
+.vscode/
+.idea/
+.lfs-assets-id

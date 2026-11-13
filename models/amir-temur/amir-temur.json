@@ -1,0 +1,20 @@
+{
+ "name": "amir-temur",
+ "lat": 41.3111744281246,
+ "lon": 69.27975936231435,
+ "base_centre_enu": [
+  -2.385,
+  -3.838,
+  1.4
+ ],
+ "triangles": 137478,
+ "dimensions_m": {
+  "east_west": 8.13881540298462,
+  "north_south": 4.876845359802246,
+  "height": 9.231979370117188
+ },
+ "axes": "glTF: +Y up, -Z north, +X east; OBJ_aligned: Z up, +Y north, +X east; metres",
+ "scale_rel_err": 0.012236681459198546,
+ "heading_gps_vs_compass_deg": 1.7000313530311288,
+ "georef": "georef.json"
+}

@@ -35,10 +35,9 @@ Y = `.omp/skills/yandex-maps-3d-model/scripts`
    2. Voxel remesh (`--voxel 0.03`). This gives one watertight shell and removes inner and double walls.
    3. Bisect at 0.75·voxel, cap the cut, and snap the cap to z=0.
    4. Iterative quadric decimate to `--tris 14500`.
-   5. Weld, drop islands smaller than 50 verts, and clamp z<0.
-   6. Limited dissolve (`--dissolve 0.5`°) to make flat n-gons, then recalculate normals.
-   7. Smooth by angle (`--smooth 40`°).
-   8. Export GLB, OBJ and FBX, and render a grey turntable with backface culling on.
+   5. Weld and clamp z<0.
+   6. `yandex_export.finish`: limited dissolve (`--dissolve 0.5`°) merges coplanar faces, then beauty triangulation. Exporters triangulate n-gons themselves, and keyhole n-gons (faces wrapped around a hole) came out as coincident up/down slivers that failed single shell; the triangle count is the same either way. It also drops islands smaller than 50 verts, recalculates normals and smooths by angle (`--smooth 40`°).
+   7. `yandex_export.export`: GLB, OBJ and FBX, then a grey turntable render with backface culling on.
 
    The script fails if the triangle count is over 15,000.
 2. **Validate.** Run `python3 $Y/validate.py models/<lm>/yandex/<lm>_yandex.glb` and the same for `.obj`. It checks:
@@ -58,6 +57,14 @@ Y = `.omp/skills/yandex-maps-3d-model/scripts`
    - Compare against the master renders taken from the same cameras: silhouette IoU per view should be above 0.95. Use a mask with `abs(img - bg) > 30`.
 4. **Reimport check.** Import the FBX and OBJ back into Blender. Expect the same triangle count, metric dimensions, 0 materials, 0 UV layers and smooth faces.
 
+## Buildings: procedural route
+Ground photos of a large building miss the roof, and Object Capture often registers only some façades, so voxel-remeshing a scan gives a poor Yandex model. Model the building from data instead, one reproducible script per landmark in `scripts/landmarks/<lm>_yandex.py` (see `forums-palace_yandex.py`):
+- **Footprint and heights** from OSM (`building`/`building:part` ways, `height`, `min_height`), converted to local metres around the footprint centre. That centre becomes the model origin and the `lat/lon` in the README/JSON.
+- **Roof** (dome, plant boxes, recesses) from satellite imagery. **Façade rhythm** (columns, bays, cornice, podium, stairs) from photos.
+- Build closed operand meshes, then run three EXACT boolean stages with collection operands: union of the body, difference of the cutters (windows, recesses), union of the roof items. Every operand must overlap its neighbour by ≥0.1 m with no coplanar or touching faces.
+- Finish with `yandex_export.finish/report/export` (shared with `blender_lowpoly.py`), then follow Validate and Visual QA above. For visual QA, compare the renders against Commons photos and the satellite view instead of a master.
+- `blender -b -P scripts/landmarks/<lm>_yandex.py -- models/<lm>/yandex --renders work/<lm>/yandex_renders`
+
 ## Tuning
 | Knob | Effect |
 |---|---|
@@ -72,3 +79,7 @@ Y = `.omp/skills/yandex-maps-3d-model/scripts`
 - 14,182 triangles, 64 n-gons, extents 8.03 × 4.82 × 9.19 m.
 - Watertight single shell, volume 64.3 m³.
 - Silhouette IoU against the master is 0.965–0.979 over 12 views.
+
+## Reference result (forums-palace, procedural)
+- 7,302 triangles, extents 146.05 × 140.87 × 51.2 m, about 6 s of build time.
+- Watertight single shell, volume 371,755 m³, flat base. gltf-validator reports 0 errors and 0 warnings.

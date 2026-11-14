@@ -15,9 +15,12 @@ DIR/NAME_*.png (grey, backface culling ON so holes would show).
 """
 import bpy, bmesh, math, os, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "../../photogrammetry-model/scripts"))
 import render_utils as ru  # noqa: E402
+import yandex_export as yx  # noqa: E402
+from yandex_export import tri_count  # noqa: E402
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 src, out_dir = argv[:2]
@@ -37,10 +40,6 @@ render_dir = opt("--renders", os.path.join(out_dir, "renders"), str)
 os.makedirs(render_dir, exist_ok=True)
 
 
-def tri_count(me):
-    return sum(len(p.vertices) - 2 for p in me.polygons)
-
-
 def apply(ob, mod):
     bpy.context.view_layer.objects.active = ob
     bpy.ops.object.modifier_apply(modifier=mod.name)
@@ -52,12 +51,6 @@ ob = [o for o in bpy.context.scene.objects if o.type == "MESH"][0]
 bpy.context.view_layer.objects.active = ob
 ob.select_set(True)
 me = ob.data
-# monochrome: no materials, UVs or colour attributes
-me.materials.clear()
-while me.uv_layers:
-    me.uv_layers.remove(me.uv_layers[0])
-for a in [a.name for a in me.color_attributes]:
-    me.color_attributes.remove(me.color_attributes[a])
 if me.has_custom_normals:
     bpy.ops.mesh.customdata_custom_splitnormals_clear()
 print(f"input tris={tri_count(me)} dims={tuple(round(d, 2) for d in ob.dimensions)}")
@@ -93,57 +86,16 @@ for _ in range(4):
 bm = bmesh.new(); bm.from_mesh(me)
 bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-4)
 bmesh.ops.dissolve_degenerate(bm, edges=bm.edges[:], dist=1e-5)
-# drop tiny loose islands left by remesh/decimate
-islands, seen = [], set()
-bm.verts.ensure_lookup_table()
-for v in bm.verts:
-    if v.index in seen:
-        continue
-    stack, comp = [v], []
-    seen.add(v.index)
-    while stack:
-        a = stack.pop(); comp.append(a)
-        for e in a.link_edges:
-            b = e.other_vert(a)
-            if b.index not in seen:
-                seen.add(b.index); stack.append(b)
-    islands.append(comp)
-islands.sort(key=len, reverse=True)
-print(f"islands after remesh/decimate: {[len(c) for c in islands[:8]]}")
-for comp in islands[1:]:
-    if len(comp) < 50:
-        bmesh.ops.delete(bm, geom=comp, context="VERTS")
 for v in bm.verts:  # decimation drifts base verts by <1 mm below the ground plane
     if v.co.z < 0:
         v.co.z = 0.0
-# 4. n-gons on truly flat areas (base, pedestal faces); Yandex prefers n-gons
-if dissolve > 0:
-    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(dissolve), verts=bm.verts[:], edges=bm.edges[:],
-                             delimit=set())
-bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])  # consistent, outward
 bm.to_mesh(me); bm.free()
 
-# 5. smooth shading on rounded surfaces, hard edges above the angle
-for p in me.polygons:
-    p.use_smooth = True
-bpy.ops.object.shade_smooth_by_angle(angle=math.radians(smooth), keep_sharp_edges=True)
-me.update()
-
-tris = tri_count(me)
-ngons = sum(1 for p in me.polygons if len(p.vertices) > 4)
-print(f"final faces={len(me.polygons)} tris(triangulated)={tris} ngons={ngons} "
-      f"dims={tuple(round(d, 2) for d in ob.dimensions)} zmin={min(v.co.z for v in me.vertices):.4f}")
-assert tris <= 15000, f"over Yandex budget: {tris}"
-
+# 4. n-gons on flat areas, outward normals, smooth shading on rounded surfaces; no materials/UVs
+yx.finish(ob, smooth_deg=smooth, dissolve_deg=dissolve)
+yx.report(ob)
 base = os.path.join(out_dir, name)
-ob.name = me.name = name
-bpy.ops.export_scene.gltf(filepath=base + ".glb", export_format="GLB", export_materials="NONE",
-                          export_normals=True, export_yup=True, export_apply=True)
-bpy.ops.wm.obj_export(filepath=base + ".obj", export_materials=False, export_uv=False, export_normals=True,
-                      export_smooth_groups=True, forward_axis="NEGATIVE_Z", up_axis="Y")
-bpy.ops.export_scene.fbx(filepath=base + ".fbx", use_selection=False, object_types={"MESH"},
-                         mesh_smooth_type="FACE", use_mesh_modifiers=True, axis_forward="-Z", axis_up="Y",
-                         apply_unit_scale=True, path_mode="STRIP", embed_textures=False)
+yx.export(ob, base)
 
 ru.add_lights_world()
 ru.render_turntable(ob, os.path.join(render_dir, name), textured=False, n=8, culling=True)

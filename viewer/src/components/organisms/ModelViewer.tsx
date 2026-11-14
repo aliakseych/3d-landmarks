@@ -49,12 +49,14 @@ export function ModelViewer({ place, versionId, onVersionChange }: Props) {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <div className="flex min-w-0 flex-col gap-3">
-        <SegmentedControl
-          label="Model version"
-          value={version.id}
-          onChange={onVersionChange}
-          options={place.versions.map((v) => ({ value: v.id, label: v.label, short: v.id === "master" ? "Master" : "Yandex", note: availability[v.url] === false ? "unavailable" : undefined }))}
-        />
+        {place.versions.length > 1 && (
+          <SegmentedControl
+            label="Model version"
+            value={version.id}
+            onChange={onVersionChange}
+            options={place.versions.map((v) => ({ value: v.id, label: v.label, short: v.id === "master" ? "Master" : "Yandex", note: availability[v.url] === false ? "unavailable" : undefined }))}
+          />
+        )}
 
         <div
           ref={stage}

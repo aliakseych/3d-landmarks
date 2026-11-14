@@ -4,15 +4,21 @@ import type { ModelVersionId } from "@/data/types";
 
 export type Route = { slug: string; version: ModelVersionId };
 
-function parse(): Route {
-  const [slug = "", version = ""] = decodeURIComponent(window.location.hash.slice(1)).split("/");
-  return {
-    slug: findPlace(slug) ? slug : places[0].slug,
-    version: version === "yandex" ? "yandex" : "master",
-  };
+const toHash = (r: Route) => `#${r.slug}/${r.version}`;
+
+/** Unknown slug -> first place; version the place lacks -> its first version. */
+function resolve(slug: string, version: string): Route {
+  const place = findPlace(slug) ?? places[0];
+  return { slug: place.slug, version: (place.versions.find((v) => v.id === version) ?? place.versions[0]).id };
 }
 
-const toHash = (r: Route) => `#${r.slug}/${r.version}`;
+function parse(): Route {
+  const [slug = "", version = ""] = decodeURIComponent(window.location.hash.slice(1)).split("/");
+  const route = resolve(slug, version);
+  // canonicalise shared links such as #forums-palace/master (no master yet) in place
+  if (window.location.hash && window.location.hash !== toHash(route)) window.history.replaceState(null, "", toHash(route));
+  return route;
+}
 
 /** Deep links: #amir-temur, #forums-palace/yandex. */
 export function useHashRoute() {
@@ -30,5 +36,5 @@ export function useHashRoute() {
     else window.history.replaceState(null, "", toHash(next));
   }, []);
 
-  return { route, selectPlace: (slug: string) => go({ slug, version: "master" }, true), selectVersion: (version: ModelVersionId) => go({ ...route, version }, false) };
+  return { route, selectPlace: (slug: string) => go(resolve(slug, ""), true), selectVersion: (version: ModelVersionId) => go({ ...route, version }, false) };
 }

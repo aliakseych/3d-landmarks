@@ -4,9 +4,10 @@ import { amirTemurPhotos, forumsPalacePhotos } from "./photos";
 const yandexMapsUrl = (lat: number, lon: number) =>
   `https://yandex.com/maps/?ll=${lon},${lat}&z=18&pt=${lon},${lat},pm2rdm&l=map`;
 
-function versions(slug: string): ModelVersion[] {
+/** withMaster=false: the textured master is not built yet; only the Yandex model ships. */
+function versions(slug: string, withMaster = true): ModelVersion[] {
   const m = `models/${slug}`;
-  return [
+  const all: ModelVersion[] = [
     {
       id: "master",
       label: "Textured master (photogrammetry)",
@@ -28,6 +29,7 @@ function versions(slug: string): ModelVersion[] {
       textured: false,
     },
   ];
+  return withMaster ? all : all.filter((v) => v.id !== "master");
 }
 
 export const places: Place[] = [
@@ -96,7 +98,7 @@ export const places: Place[] = [
       { label: "Coordinates: OpenStreetMap", url: "https://www.openstreetmap.org/?mlat=41.3095402&mlon=69.2825796#map=18/41.3095402/69.2825796" },
     ],
     photos: forumsPalacePhotos,
-    versions: versions("forums-palace"),
+    versions: versions("forums-palace", false),
   },
 ];
 

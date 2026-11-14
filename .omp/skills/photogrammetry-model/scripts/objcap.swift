@@ -10,6 +10,7 @@ import simd
 
 @main struct ObjCap {
     static func main() async {
+        setvbuf(stdout, nil, _IOLBF, 0)   // progress visible when redirected to a log
         var args = Array(CommandLine.arguments.dropFirst())
         guard args.count >= 2 else {
             print("usage: objcap <imagesDir> <outDir> [detail] [--polys N] [--tex 4096] [--no-mask] [--ordering sequential|unordered] [--sensitivity normal|high]")
@@ -106,7 +107,9 @@ import simd
                         print("bounds: \(b.min) \(b.max)")
                     default: print("result: \(result)")
                     }
-                case .processingComplete: print("processing complete")
+                case .processingComplete:
+                    // the outputs stream does not always finish after this; leave explicitly
+                    print("processing complete"); exit(failed ? 1 : 0)
                 case .processingCancelled: print("cancelled"); failed = true
                 case .stitchingIncomplete: print("WARNING: stitching incomplete (some images not connected)")
                 default: break

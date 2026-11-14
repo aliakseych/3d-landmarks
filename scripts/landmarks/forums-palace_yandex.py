@@ -6,8 +6,10 @@ blender -b -P scripts/landmarks/forums-palace_yandex.py -- <outDir> [--renders D
 Writes <outDir>/forums-palace_yandex.{glb,obj,fbx} (one closed monochrome shell, n-gons,
 <= 15k triangles) and grey QA renders.
 
-Sources: OpenStreetMap way 44351799 (footprint 113.4 x 86.6 m, long axis bearing 127 deg,
-height 40.2 m) and way 235797552 (dome r 31.8 m, top 50 m); satellite imagery; photos.
+Sources: OpenStreetMap way 44351799 (footprint 113.4 x 86.6 m, long axis bearing 127 deg)
+and way 235797552 (dome position); cornice top 35 m measured from the facade photo scans
+(OSM's 40.2 m tag overstates it); dome top 48 m = official building height
+(mustaqillik.uz); dome radius from satellite imagery (OSM 31.8 m is too large); photos.
 Frame: origin = footprint centre (41.30954 N, 69.28258 E) on the ground, X east, Y north,
 Z up, metres (glTF/OBJ/FBX exports are Y-up, -Z north). Local building axes: u = long
 axis (towards SE), v = short axis (towards NE); the NW short facade faces Amir Temur square.
@@ -35,7 +37,7 @@ L, W = 113.4, 86.6           # cornice outline = OSM footprint
 ROT = -37.15                 # local +u from east, degrees (counter-clockwise positive)
 CORNICE_OUT = 2.8            # top cornice projection beyond the wall plane
 A, B = L / 2 - CORNICE_OUT, W / 2 - CORNICE_OUT   # wall half extents
-H_TOP = 40.2                 # cornice/parapet top (OSM height)
+H_TOP = 35.0                 # cornice/parapet top (facade scans: SE 35.2, NW 34.1)
 ENT_H = 8.5                  # entablature + cornice height
 COL_TOP = H_TOP - ENT_H
 POD_H, POD_OUT = 1.2, 4.0    # podium height, projection beyond the wall
@@ -45,7 +47,7 @@ COL_R, COL_OFF, COL_SEG = 1.0, 0.6, 16   # engaged round columns: radius, axis o
 N_COLS = {"short": 8, "long": 12}
 WIN_DEPTH, WIN_RISE = 1.2, 2.5           # recessed glazed bays with pointed-arch heads
 ROOF_INSET, ROOF_DROP = 5.5, 1.5         # parapet band width (from cornice edge), roof drop
-DOME_U, DOME_V, DOME_R, DOME_TOP = -8.87, 0.0, 31.8, 50.0
+DOME_U, DOME_V, DOME_R, DOME_TOP = -8.87, 0.0, 29.0, 48.0
 DOME_SEG, DOME_RINGS, RIB = 64, 10, 0.25  # 32 ribs = every other vertex pushed out by RIB
 ROOF_BLOCKS = [  # (u0, u1, v0, v1, height) rooftop plant, from satellite imagery
     (-48, -22, 30, 37, 3.0), (-48, -24, -37, -30, 3.0), (14, 48, 24, 33, 2.5),

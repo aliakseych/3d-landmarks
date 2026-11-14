@@ -1,0 +1,30 @@
+{
+ "name": "forums-palace",
+ "lat": 41.30954,
+ "lon": 69.28258,
+ "versions": {
+  "master": null,
+  "yandex": "yandex/forums-palace_yandex.glb"
+ },
+ "triangles_yandex": 7416,
+ "dimensions_m": {
+  "east_west": 146.05,
+  "north_south": 140.87,
+  "height": 49.2,
+  "footprint_long_x_short": [113.4, 86.6],
+  "long_axis_bearing_deg": 127.15
+ },
+ "heights_m": {
+  "cornice_top": 35.0,
+  "dome_top": 48.0,
+  "finial_pedestal_top": 49.2
+ },
+ "axes": "glTF/OBJ/FBX: +Y up, -Z north, +X east; metres; origin = footprint centre on the ground",
+ "sources": {
+  "footprint": "OpenStreetMap way 44351799",
+  "dome_position": "OpenStreetMap way 235797552",
+  "dome_radius": "satellite imagery (29 m)",
+  "cornice_top": "photogrammetry sections of the SE and NW facades (35.2 m, 34.1 m)",
+  "dome_top": "official building height 48 m (mustaqillik.uz)"
+ }
+}

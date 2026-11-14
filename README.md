@@ -1,8 +1,8 @@
 # 3D Landmarks
 
-Open 3D models of Tashkent landmarks, built from phone photos with photogrammetry. Every landmark ships as:
+Open 3D models of Tashkent landmarks, built from phone photos with photogrammetry. Each landmark ships as:
 
-- a **textured master** (`.glb`) for viewing and sharing;
+- a **textured master** (`.glb`) for viewing and sharing, once its photos reconstruct cleanly (see the table);
 - a **Yandex Maps 3D** submission model (`.glb` / `.obj` / `.fbx`, ≤ 15,000 triangles, no textures, watertight, georeferenced).
 
 **Viewer:** https://aliakseych.github.io/3d-landmarks/
@@ -12,7 +12,7 @@ Open 3D models of Tashkent landmarks, built from phone photos with photogrammetr
 | Slug | Landmark | Master | Yandex model |
 |---|---|---|---|
 | [`amir-temur`](models/amir-temur/) | Amir Temur monument | 137k tris, 4K texture | 14.2k tris |
-| [`forums-palace`](models/forums-palace/) | Palace of International Forums "Uzbekistan" | in progress | in progress |
+| [`forums-palace`](models/forums-palace/) | Palace of International Forums "Uzbekistan" | pending (NE/SW facades need a recapture) | 7.4k tris |
 
 ## Repository layout
 

@@ -1,0 +1,34 @@
+name: Landmark request
+description: Suggest a landmark to model, or offer captures for one.
+labels: [landmark]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Landmark
+      description: Name and city.
+      placeholder: Kukeldash Madrasa, Tashkent
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: Map link or lat/lon.
+    validations:
+      required: true
+  - type: dropdown
+    id: captures
+    attributes:
+      label: Can you provide photos?
+      options:
+        - No, just a suggestion
+        - Yes, I can capture it (see CONTRIBUTING.md checklist)
+        - Yes, I already have a capture set
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Access restrictions, scaffolding, best time to shoot, etc.

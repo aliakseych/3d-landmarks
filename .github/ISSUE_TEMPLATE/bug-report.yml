@@ -1,0 +1,27 @@
+name: Bug report
+description: Something is wrong with the viewer or a model.
+labels: [bug]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Viewer (website)
+        - Textured master model
+        - Yandex Maps model
+        - Pipeline scripts
+    validations:
+      required: true
+  - type: input
+    id: landmark
+    attributes:
+      label: Landmark slug
+      placeholder: amir-temur
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: For the viewer, add the browser, device and a screenshot. For models, add the file and the app that opened it.
+    validations:
+      required: true
